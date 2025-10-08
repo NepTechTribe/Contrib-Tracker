@@ -2,7 +2,7 @@ name: Private Contributor Tracker
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Every Monday
+    - cron: '0 0 * * *'  
   workflow_dispatch:      # Manual trigger
 
 permissions:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the tracker repo
+      # Step 1: Checkout Contrib-Tracker repo
       - name: Checkout Contrib-Tracker
         uses: actions/checkout@v4
         with:
@@ -80,7 +80,7 @@ jobs:
               f.write("\n".join(md))
           PYCODE
 
-      # Step 4: Commit and push to private repo
+      # Step 4: Commit and push leaderboard
       - name: Commit and push leaderboard
         run: |
           git config user.name "github-actions[bot]"
