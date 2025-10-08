@@ -2,7 +2,7 @@ name: Private Contributor Tracker
 
 on:
   schedule:
-    - cron: '0 0 * * *'  
+    - cron: '0 0 * * *'  # Every Monday at midnight
   workflow_dispatch:      # Manual trigger
 
 permissions:
@@ -13,13 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout Contrib-Tracker repo
-      - name: Checkout Contrib-Tracker
+      # Step 1: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          repository: NepTechTribe/Contrib-Tracker
-          token: ${{ secrets.PERSONAL_TOKEN }}
-          ref: main
 
       # Step 2: Install dependencies
       - name: Install dependencies
@@ -28,7 +24,7 @@ jobs:
           sudo apt install -y python3 python3-pip jq
           pip install requests
 
-      # Step 3: Generate contribution table
+      # Step 3: Generate contribution table (with participant filter)
       - name: Generate contribution table
         env:
           TOKEN: ${{ secrets.PERSONAL_TOKEN }}
@@ -41,9 +37,9 @@ jobs:
           REPOS = ["NepTechTribe/CodeVault", "NepTechTribe/EventLog"]  # Replace with your repos
           HEADERS = {"Authorization": f"token {TOKEN}"}
 
-          # Load participants from JSON
+          # Load participants list
           with open("data/participants.json", "r", encoding="utf-8") as f:
-              participants = set(json.load(f))  # ["login1","login2",...]
+              participants = set(json.load(f))
 
           users = {}
 
@@ -56,7 +52,7 @@ jobs:
               for u in res.json():
                   login = u["login"]
                   if login not in participants:
-                      continue
+                      continue  # skip users not in participants
                   if login not in users:
                       users[login] = {
                           "avatar": u["avatar_url"],
@@ -67,10 +63,9 @@ jobs:
 
           sorted_users = sorted(users.items(), key=lambda x: x[1]["contributions"], reverse=True)
 
-          # Build Markdown table
           md = ["# 🧑‍💻 Weekly Contribution Leaderboard\n"]
           md.append("| Rank | Avatar | User | Total Commits |")
-          md.append("|------|--------|------|----------------|")
+          md.append("|------|---------|------|----------------|")
 
           for i, (login, data) in enumerate(sorted_users, 1):
               avatar_md = f'<img src="{data["avatar"]}" width="40" height="40" style="border-radius:50%"/>'
@@ -80,8 +75,8 @@ jobs:
               f.write("\n".join(md))
           PYCODE
 
-      # Step 4: Commit and push leaderboard
-      - name: Commit and push leaderboard
+      # Step 4: Commit and push report
+      - name: Commit and push report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -89,6 +84,6 @@ jobs:
           if ! git diff --quiet CONTRIBUTION_STATS.md; then
             git add CONTRIBUTION_STATS.md
             git commit -m "Update weekly contribution stats [skip ci]"
-            git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/NepTechTribe/Contrib-Tracker.git HEAD:main
+            git push
           else
             echo "No changes in contributor stats."
