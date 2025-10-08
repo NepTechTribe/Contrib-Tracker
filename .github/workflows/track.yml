@@ -31,7 +31,7 @@ jobs:
           from collections import defaultdict
 
           TOKEN = "${{ secrets.PERSONAL_TOKEN }}"
-          REPOS = ["NepTechTribe/RepoA", "NepTechTribe/RepoB"]  # <--- replace with your actual repos
+          REPOS = ["NepTechTribe/CodeVault", "NepTechTribe/EventLog"]  # <--- replace with your actual repos
           HEADERS = {"Authorization": f"token {TOKEN}"}
 
           users = {}
