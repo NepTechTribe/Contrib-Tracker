@@ -2,8 +2,8 @@ name: Private Contributor Tracker
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Every Monday at midnight
-  workflow_dispatch:
+    - cron: '0 0 * * 1'  # Every Monday at midnight
+  workflow_dispatch:      # Manual trigger
 
 permissions:
   contents: write
@@ -18,28 +18,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3 python3-pip jq
+          python3 -m pip install --upgrade pip
           pip install requests
 
-      - name: Generate contribution table
-        env:
-          TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        run: python3 scripts/contrib_tracker.py
+      - name: List files
+        run: ls -R
 
-      - name: Commit and push report
+      - name: Run Python script
         env:
           TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
+          python3 scripts/contrib_tracker.py || { echo 'Python script failed'; exit 1; }
+
+      - name: Commit and push report
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Push using personal token to avoid 403
-          REPO_URL="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
-          if ! git diff --quiet CONTRIBUTION_STATS.md; then
-            git add CONTRIBUTION_STATS.md
-            git commit -m "Update weekly contribution stats [skip ci]"
-            git push $REPO_URL HEAD:main
-          else
-            echo "No changes in contributor stats."
+          git add CONTRIBUTION_STATS.md
+          git commit -m "Update weekly contribution stats [skip ci]"
+          git push
