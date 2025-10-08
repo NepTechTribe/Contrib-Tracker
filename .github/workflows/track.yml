@@ -28,13 +28,18 @@ jobs:
         run: python3 scripts/contrib_tracker.py
 
       - name: Commit and push report
+        env:
+          TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Push using personal token to avoid 403
+          REPO_URL="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
           if ! git diff --quiet CONTRIBUTION_STATS.md; then
             git add CONTRIBUTION_STATS.md
             git commit -m "Update weekly contribution stats [skip ci]"
-            git push
+            git push $REPO_URL HEAD:main
           else
             echo "No changes in contributor stats."
