@@ -1,0 +1,45 @@
+import requests
+import json
+from collections import defaultdict
+import os
+
+TOKEN = os.environ.get("TOKEN")
+REPOS = ["NepTechTribe/CodeVault", "NepTechTribe/EventLog"]  # Replace with your repos
+HEADERS = {"Authorization": f"token {TOKEN}"}
+
+# Load participants list
+with open("data/participants.json", "r", encoding="utf-8") as f:
+    participants = set(json.load(f))
+
+users = {}
+
+for repo in REPOS:
+    url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
+    res = requests.get(url, headers=HEADERS)
+    if res.status_code != 200:
+        print(f"Error fetching {repo}: {res.text}")
+        continue
+    for u in res.json():
+        login = u["login"]
+        if login not in participants:
+            continue  # skip users not in participants
+        if login not in users:
+            users[login] = {
+                "avatar": u["avatar_url"],
+                "url": u["html_url"],
+                "contributions": 0
+            }
+        users[login]["contributions"] += u["contributions"]
+
+sorted_users = sorted(users.items(), key=lambda x: x[1]["contributions"], reverse=True)
+
+md = ["# 🧑‍💻 Weekly Contribution Leaderboard\n"]
+md.append("| Rank | Avatar | User | Total Commits |")
+md.append("|------|---------|------|----------------|")
+
+for i, (login, data) in enumerate(sorted_users, 1):
+    avatar_md = f'<img src="{data["avatar"]}" width="40" height="40" style="border-radius:50%"/>'
+    md.append(f"| {i} | {avatar_md} | [{login}]({data['url']}) | {data['contributions']} |")
+
+with open("CONTRIBUTION_STATS.md", "w", encoding="utf-8") as f:
+    f.write("\n".join(md))
