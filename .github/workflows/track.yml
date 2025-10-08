@@ -3,7 +3,7 @@ name: Private Contributor Tracker
 on:
   schedule:
     - cron: '0 0 * * 1'  # Every Monday at midnight
-  workflow_dispatch:      # Allow manual trigger
+  workflow_dispatch:      # Manual trigger
 
 permissions:
   contents: write
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_TOKEN }}
 
       - name: Install dependencies
         run: |
@@ -31,8 +33,12 @@ jobs:
           from collections import defaultdict
 
           TOKEN = "${{ secrets.PERSONAL_TOKEN }}"
-          REPOS = ["NepTechTribe/CodeVault", "NepTechTribe/EventLog"]  # <--- replace with your actual repos
+          REPOS = ["NepTechTribe/RepoA", "NepTechTribe/RepoB"]  # Replace with your repos
           HEADERS = {"Authorization": f"token {TOKEN}"}
+
+          # Load participants list
+          with open("data/participants.json", "r", encoding="utf-8") as f:
+              participants = set(json.load(f))  # expecting ["login1","login2",...]
 
           users = {}
 
@@ -44,6 +50,8 @@ jobs:
                   continue
               for u in res.json():
                   login = u["login"]
+                  if login not in participants:
+                      continue  # skip if not in participants
                   if login not in users:
                       users[login] = {
                           "avatar": u["avatar_url"],
@@ -54,6 +62,7 @@ jobs:
 
           sorted_users = sorted(users.items(), key=lambda x: x[1]["contributions"], reverse=True)
 
+          # Build Markdown table
           md = ["# 🧑‍💻 Weekly Contribution Leaderboard\n"]
           md.append("| Rank | Avatar | User | Total Commits |")
           md.append("|------|---------|------|----------------|")
@@ -77,4 +86,3 @@ jobs:
             git push
           else
             echo "No changes in contributor stats."
-          fi
