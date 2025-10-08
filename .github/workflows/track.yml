@@ -70,7 +70,7 @@ jobs:
 
             with open("CONTRIBUTION_STATS.md", "w", encoding="utf-8") as f:
                 f.write("\n".join(md))
-PYCODE
+#PYCODE
 
       - name: Commit and push report
         run: |
