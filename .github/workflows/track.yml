@@ -29,12 +29,12 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
           python3 scripts/contrib_tracker.py || { echo 'Python script failed'; exit 1; }
-
+          
       - name: Commit and push report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull
-          git add README.md
+          git pull --rebase origin main
+          git add CONTRIBUTION_STATS.md
           git commit -m "Update weekly contribution stats [skip ci]"
           git push
