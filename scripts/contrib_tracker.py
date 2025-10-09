@@ -41,5 +41,5 @@ for i, (login, data) in enumerate(sorted_users, 1):
     avatar_md = f'<img src="{data["avatar"]}" width="40" height="40" style="border-radius:50%"/>'
     md.append(f"| {i} | {avatar_md} | [{login}]({data['url']}) | {data['contributions']} |")
 
-with open("CONTRIBUTION_STATS.md", "w", encoding="utf-8") as f:
+with open("README.md", "w", encoding="utf-8") as f:
     f.write("\n".join(md))
