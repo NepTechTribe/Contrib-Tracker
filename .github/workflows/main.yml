@@ -36,4 +36,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Update weekly contribution stats [skip ci]"
+           git pull --rebase origin main
           git push
