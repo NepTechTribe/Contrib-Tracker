@@ -2,7 +2,7 @@ name: Private Contributor Tracker
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Every Monday at midnight
+    - cron: '15 18 * * 0'  # Every Monday at midnight Nepal Time
   workflow_dispatch:      # Manual trigger
 
 permissions:
