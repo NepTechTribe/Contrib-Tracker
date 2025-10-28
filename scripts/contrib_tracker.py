@@ -114,7 +114,7 @@ def build_markdown(sorted_users, include_prs_issues=False, show_zero=False):
         md.append("| Rank | Avatar | User | Total Commits | PRs | Issues | Total |")
         md.append("|------|---------|------|----------------|-----:|-------:|------:|")
         for i, (login, data) in enumerate(sorted_users, 1):
-            avatar_md = f'<img src="{data.get(\"avatar\",\"\")}" width="40" height="40" style="border-radius:50%"/>' if data.get("avatar") else ""
+            avatar_md = f'<img src="{data.get("avatar", "")}" width="40" height="40" style="border-radius:50%"/>' if data.get("avatar") else ""
             commits = data.get("commits", 0)
             prs = data.get("prs", 0)
             issues = data.get("issues", 0)
