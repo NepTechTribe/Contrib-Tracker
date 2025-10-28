@@ -1,4 +1,4 @@
-# 🧑‍💻 Weekly Contribution Leaderboard
+# 🧑‍💻 All-time Contribution Leaderboard (Commits)
 
 | Rank | Avatar | User | Total Commits |
 |------|---------|------|----------------|
